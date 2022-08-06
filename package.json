@@ -1,0 +1,17 @@
+{
+  "name": "openwiser",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:thankyouthatscool/openwiser.git",
+  "author": "OZahnitko <ozahnitko@teleresult.com.au>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "services/*"
+    ]
+  },
+  "scripts": {
+    "start-database-container": "cd services/docker && docker compose up -d"
+  }
+}
