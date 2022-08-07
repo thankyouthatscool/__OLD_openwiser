@@ -24,3 +24,4 @@ DELETE FROM public."NotionPage";
 ### Refactor notes
 
 - Export single Notion client.
+- Await Promise all creation of a new page does not work on subsequent runs.
