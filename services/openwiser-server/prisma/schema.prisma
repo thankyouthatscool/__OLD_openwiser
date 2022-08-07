@@ -9,3 +9,35 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Clipping {
+  id       String   @id @default(uuid())
+  content  String
+  date     DateTime
+  location String
+  page     String
+  source   Source   @relation(fields: [sourceId], references: [id])
+  sourceId String
+  type     String
+
+  @@unique([content, sourceId])
+}
+
+model NotionPage {
+  id       String @id @default(uuid())
+  notionId String
+  source   Source @relation(fields: [sourceId], references: [id])
+  sourceId String @unique
+}
+
+model Source {
+  id         String      @id @default(uuid())
+  author     String
+  clippings  Clipping[]
+  coverUrl   String?
+  notionPage NotionPage?
+  title      String
+  url        String?
+
+  @@unique([author, title])
+}

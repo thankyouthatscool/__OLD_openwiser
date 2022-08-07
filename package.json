@@ -12,6 +12,7 @@
     ]
   },
   "scripts": {
+    "open:server": "code ./services/openwiser-server",
     "start-database-container": "cd services/docker && docker compose up -d"
   }
 }
