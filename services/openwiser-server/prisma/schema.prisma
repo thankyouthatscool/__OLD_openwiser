@@ -13,6 +13,7 @@ datasource db {
 model Clipping {
   id       String   @id @default(uuid())
   content  String
+  coverUrl String?
   date     DateTime
   location String
   page     String
@@ -37,6 +38,7 @@ model Source {
   coverUrl   String?
   notionPage NotionPage?
   title      String
+  type       String
   url        String?
 
   @@unique([author, title])

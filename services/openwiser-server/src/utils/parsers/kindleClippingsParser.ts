@@ -56,15 +56,16 @@ export const kindleClippingsParser = (
   return formattedClippings;
 };
 
+export interface NormalizedClippingsArray {
+  content: string;
+  date: string;
+  location: string;
+  page: string;
+  type: string;
+}
+
 export interface NormalizedClippingsObject {
-  [key: string]: {
-    content: string;
-    date: string;
-    location: string;
-    page: string;
-    sourceId?: string;
-    type: string;
-  }[];
+  [key: string]: NormalizedClippingsArray[];
 }
 
 export const normalizeKindleClippings = (

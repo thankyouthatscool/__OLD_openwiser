@@ -1,16 +1,19 @@
+import chalk from "chalk";
 import { watch } from "chokidar";
 import { config } from "dotenv";
+import { parse } from "node:path";
 
 import {
-  insertClippingsIntoNotionPages,
-  updateKindleClippings,
-  updateSources,
-  updateUserPages,
-} from "./utils/database/index.js";
-import {
+  createNewPages,
   kindleClippingsParser,
   normalizeKindleClippings,
-} from "./utils/parsers/index.js";
+  notionClient,
+  prisma,
+  updateClippings,
+  updateDatabaseClippings,
+  updateDatabaseSources,
+  updatePages,
+} from "./utils/index.js";
 
 config();
 
@@ -19,21 +22,53 @@ const CLIP_CONTAINER_PATH = process.env["CLIP_CONTAINER_PATH"]!;
 const watcher = watch(CLIP_CONTAINER_PATH);
 
 watcher.on("all", async (event, path) => {
-  if (event === "add") {
-    const formattedClippings = kindleClippingsParser(path);
+  if (["add", "change"].includes(event)) {
+    const { base } = parse(path);
 
-    const normalizedClippings = normalizeKindleClippings(formattedClippings);
+    if (base === "My Clippings.txt") {
+      const formattedClippings = kindleClippingsParser(path);
 
-    const sources = Object.keys(normalizedClippings);
+      console.log(
+        chalk.underline(
+          chalk.blue(
+            `${chalk.bold(formattedClippings.length)} clippings parsed!\n`
+          )
+        )
+      );
 
-    await updateSources(sources);
+      const normalizedKindleClippings =
+        normalizeKindleClippings(formattedClippings);
 
-    await updateUserPages(sources);
+      const sources = Object.keys(normalizedKindleClippings);
 
-    const newClippings = await updateKindleClippings(normalizedClippings);
+      const newSources = await updateDatabaseSources(sources);
 
-    await insertClippingsIntoNotionPages(newClippings);
+      if (!!newSources && !!newSources.length) {
+        console.log(
+          `${chalk.yellow("New Sources Created")}\n${chalk.blue(
+            newSources.map((source) => `\n${source?.author} - ${source?.title}`)
+          )}\n`
+        );
 
-    console.log("DONE!");
+        await createNewPages(newSources);
+      } else {
+        console.log("No New Sources\n");
+      }
+
+      const newClippings = await updateDatabaseClippings(
+        normalizedKindleClippings
+      );
+
+      if (!!newClippings.length) {
+        //@ts-ignore
+        await updateClippings(newClippings);
+      } else {
+        console.log("No New Clippings\n");
+      }
+
+      await updatePages();
+
+      console.log(chalk.green.bold("Done!"));
+    }
   }
 });
