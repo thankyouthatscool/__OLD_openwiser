@@ -41,5 +41,5 @@ model Source {
   type       String
   url        String?
 
-  @@unique([author, title])
+  @@unique([author, title, type])
 }
